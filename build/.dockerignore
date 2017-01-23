@@ -1,3 +1,0 @@
-#Do not include build helper
-docker-build.sh
-make-tgz.sh
