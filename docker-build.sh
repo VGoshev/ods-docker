@@ -32,6 +32,16 @@ if [ ! -z "$2" ]; then
   ODS_VERSION="$2"
 fi
 
+#Check, if tar file exists
+ODS_TAR="OracleDeveloperStudio${ODS_VERSION}-linux-x86-bin.tar.bz2"
+if [ ! -f ./$ODS_TAR ]; then
+  echo "You need to download $ODS_TAR file first"
+  echo "You can download it from official Oracle Developer Studio download  web page:"
+  echo "  http://www.oracle.com/technetwork/server-storage/developerstudio/downloads/index.html"
+  exit 1
+fi
+
+
 # Get user's UID and gid. So we'll create user with the same id's inside of Docker container
 USER_GID=`id -g`
 USER_UID=`id -u`
