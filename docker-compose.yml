@@ -1,0 +1,26 @@
+version: 2
+services:
+  ods_ssh:
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+      args:
+        ODS_VERSION: 12.5
+        DO_SSH_IMAGE: 'YES'
+        USER_GID: 2012
+        USER_UID: 2012
+        USER_PASSWD: '$1$develope$TQhuT6npUu1n6QeTvcavi1'
+        PRIVATE_IMAGE: 'NO'
+        HTTP_PROXY:
+
+    image: vgoshev/ods
+
+    cap_add:
+      - SYS_PTRACE
+
+    container_name: ods-ssh
+    ports:
+      - "127.0.0.1:10022:22"
+    volumes:
+      - ~/Documents/Coding/DevStudioProjects:/home/developer/src
+#      - ./DevStudioProjects:/home/developer/src
