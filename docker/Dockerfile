@@ -1,6 +1,6 @@
 #[Unofficial] Oracle Developer Studio image
 FROM oracle/oraclelinux:6
-MAINTAINER Vladimir Goshev <vladimir.goshev@oracle.com>
+MAINTAINER Vladimir Goshev <sunx@sunx.name>
 
 ### !!! ###
 #Do not forget to add --build-arg "HTTP_PROXY=$HTTP_PROXY" in case if you need to use proxy
@@ -26,8 +26,8 @@ ARG PRIVATE_IMAGE='NO'
 #$ openssl passwd -1 -salt <salt> <password>
 #Or read http://unix.stackexchange.com/questions/81240/manually-generate-password-for-etc-shadow
 
-COPY build.sh /tmp/build.sh
 COPY OracleDeveloperStudio${ODS_VERSION}-linux-x86-bin.tar.bz2 /tmp/OracleDeveloperStudio${ODS_VERSION}-linux-x86-bin.tar.bz2
+COPY build.sh /tmp/build.sh
 
 # As this command depend on all ARGs, lets show what it uses them as ENV
 RUN   ODS_VERSION=$ODS_VERSION \
