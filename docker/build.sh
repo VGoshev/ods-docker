@@ -8,19 +8,7 @@ set -x
 ODS_VERSION="12.5"
 [ "x$1" != "x" ] && ODS_VERSION=$1
 
-#ODS_HOST http://172.17.0.1:8000/
 ODS_TAR="OracleDeveloperStudio${ODS_VERSION}-linux-x86-bin.tar.bz2"
-#Check if ODS_TAR file is exists (i.e. was copied by COPY command, 
-#  if not, then try to download it from host
-if [ ! -f "/tmp/$ODS_TAR" ]; then
-  echo "can not find $ODS_TAR localy, trying to download it "
-  # If ODS_HOST env-variable isn't exist, then fail
-  if [ -z "$ODS_HOST" ]; then
-    echo "ODS_HOST enviroment variable is empty, stopping build"
-    exit 1
-  fi
-    curl -sSL "$ODS_HOST/$ODS_TAR" > "/tmp/$ODS_TAR"
-fi
 
 # Set yum proxy, if needed
 [ ! -z "$HTTP_PROXY" ] && echo "proxy=${HTTP_PROXY}" >> /etc/yum.conf 
@@ -98,6 +86,7 @@ fi
 echo 'exec /bin/bash' >> /bin/docker-run
 
 # Clean unneded files
+# deleteing of $ODS_TAR is quite useles because it is already present in previous level, bur docker build --squash fixes it (Or, at least, I hope so)
 rm -f /tmp/$ODS_TAR
 yum clean -y all
 rm -rf /var/cache/yum/*

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Script for building ODS image in proper way
 # $1 is make SSH image or standart one (use YES for SSH), default is YES
 # $2 is ODS version, default is 12.5
@@ -12,7 +12,6 @@ BUILD_DIR="./docker"
 xPWD=`pwd`
 RELATIVE_PATH=`dirname $0`
 cd "$xPWD/$RELATIVE_PATH/$BUILD_DIR"
-
 
 # In case you want to add something to "docker build" command
 #DOCKER="echo docker"
@@ -33,21 +32,6 @@ if [ ! -z "$2" ]; then
   ODS_VERSION="$2"
 fi
 
-# Start lightweight Python HTTP Server
-#  172.17.0.1 is default ip for host in docker network
-#  Run python3 version or python2 version if python3 isn't found
-CPID=
-if which python3 >/dev/null; then
-  python3 -m http.server --bind 172.17.0.1 8000 &
-  CPID=$!
-else
-  python2 -m SimpleHTTPServer 8000 &
-  CPID=$!
-fi
-#Wait 3 seconds to be sure, that http server have been started.
-sleep 3
-
-
 # Get user's UID and gid. So we'll create user with the same id's inside of Docker container
 USER_GID=`id -g`
 USER_UID=`id -u`
@@ -56,7 +40,7 @@ USER_UID=`id -u`
 if [ "x$USER_UID" != "x0" ]; then
   DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg USER_UID=$USER_UID --build-arg USER_GID=$USER_GID"
 fi
-# It would be goot to get our password, but it is impossible, i think
+# It would be good to get our password, but it is impossible, I think
 
 IMAGE_NAME=""
 #Generate image name
@@ -72,37 +56,62 @@ else
   fi
 fi
 
-#if we have md5sum utility, then add build.sh hash as build-arg
-if which md5sum >/dev/null; then
-  MD5HASH=`md5sum build.sh | awk {'print $1'}`
-  DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg BUILD_SH_MD5=$MD5HASH"
-else
-  #Add --no-cache=true to invalidate cache if no md5 programs found
-  DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --no-cache=true"
+# Now, with docker 1.13 we can use --squash option to squash all image layers into one:
+#  https://github.com/docker/docker/pull/22641
+# But only in experimental mode. 
+#  See https://github.com/docker/docker/tree/master/experimental for more information about experimental mode
+DOCKER_VERSION=`$DOCKER $DOCKER_ARGS version -f '{{.Server.Version}}'`
+IS_EXPERIMENTAL=`$DOCKER $DOCKER_ARGS version -f '{{.Server.Experimental}}'`
+
+# http://stackoverflow.com/questions/4023830/how-compare-two-strings-in-dot-separated-version-format-in-bash
+vercomp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
+vercomp $DOCKER_VERSION "1.13.0"
+DOCKER_13=$?
+#0) =
+#1) >
+#2) <
+# Do only for docker 1.13.0 and newer
+if [ $DOCKER_13 -lt 2 ]; then
+  if [ "$IS_EXPERIMENTAL" = "true" ]; then
+    DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --squash"
+  fi
 fi
 
-#Which lines we should delete from Dockerfile
-#No need to do COPY (it will not work anyway)
-# You can add #|$ to strip Comments and empty lines as well (not very usefull however)
-GREP='^\s*(COPY)'
-#In case of NOT SSH image delete EXPOSE and VOLUME lines
-if [ "x$SSH_IMAGE" != "xYES" ]; then
-  GREP='^\s*(COPY|EXPOSE|VOLUME)'
-fi
-
-#$DOCKER $DOCKER_ARGS build -t "$IMAGE_NAME" -f Dockerfile .
-#Fix Dockerfile and pass it to docker build
 #We don't pass following arguments (use defaults):
-# ODS_HOST='http://172.17.0.1:8000/'
 # USER_PASSWD='$1$develope$TQhuT6npUu1n6QeTvcavi1'
 # PRIVATE_IMAGE='NO'
-#  --no-cache=true
-cat Dockerfile | grep -vE "$GREP" | $DOCKER $DOCKER_ARGS build \
+$DOCKER $DOCKER_ARGS build \
   $DOCKER_BUILD_ARGS \
   --build-arg "ODS_VERSION=$ODS_VERSION" \
   --build-arg "DO_SSH_IMAGE=$SSH_IMAGE" \
-  --build-arg "HTTP_PROXY=$HTTP_PROXY"  -t "$IMAGE_NAME" -
-
-
-#Stop(Kill) HTTP Server
-kill $CPID
+  --build-arg "HTTP_PROXY=$HTTP_PROXY"  -t "$IMAGE_NAME" -f Dockerfile .
