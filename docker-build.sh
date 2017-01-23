@@ -8,7 +8,7 @@
 set -x
 
 # CD to directory with Dockerfile
-BUILD_DIR="./build"
+BUILD_DIR="./docker"
 xPWD=`pwd`
 RELATIVE_PATH=`dirname $0`
 cd "$xPWD/$RELATIVE_PATH/$BUILD_DIR"

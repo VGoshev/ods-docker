@@ -1,2 +1,2 @@
-build/OracleDeveloperStudio12.5-linux-x86-bin.tar.bz2
-build/OracleDeveloperStudio*.tar.bz2
+docker/OracleDeveloperStudio12.5-linux-x86-bin.tar.bz2
+docker/OracleDeveloperStudio*.tar.bz2

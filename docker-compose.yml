@@ -2,7 +2,7 @@ version: 2
 services:
   ods_ssh:
     build:
-      context: ./build
+      context: ./docker
       dockerfile: Dockerfile
       args:
         ODS_VERSION: 12.5
