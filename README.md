@@ -15,15 +15,15 @@ For that:
 * Read and Accept license
 * Download tar file for Oracle Linux/Red Hat Linux x86 architecture.
   * You would probably want to download IDE as well (ODS IDE is awesome for remote developmetn)
-* Put downloaded tar file to directory with Dockerfile (i.e. ./build directory)
+* Put downloaded tar file to directory with Dockerfile (i.e. ./docker directory)
 
 ### Building with docker build command
 
 After it you could run
-  **`docker build -t ods ./build`**
+  **`docker build -t ods ./docker`**
 (You probably would like to choose another image name)
 
-If you have docker version `1.13.0` or newer and experimental features is turned on (see [docker documentation](https://github.com/docker/docker/tree/master/experimental) for details),
+If you have docker version `1.13.0` or newer and experimental features are turned on (see [docker documentation](https://github.com/docker/docker/tree/master/experimental) for details),
 then you probably would like to use `--squash` build option to greatly reduce image size
 
 This Dockerfile support various arguments, so read it for more details.
@@ -42,7 +42,7 @@ option to docker build command
 
 Build script accept up to 3 arguments:
 * First one says if SSH image is building or not (use YES for SSH), default is YES
-* Second one says ODS version, default is 12.5 (Only 12.5 was tested so far)
+* Second one says ODS version, default is 12.6 (Only 12.5 and 12.6 were tested so far)
 * Third one says image name, default is $USER/ods (or 'ods' for root)
     
 Also build script support several environment variables:

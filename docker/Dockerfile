@@ -1,5 +1,5 @@
 #[Unofficial] Oracle Developer Studio image
-FROM oracle/oraclelinux:6
+FROM oraclelinux:6
 MAINTAINER Vladimir Goshev <sunx@sunx.name>
 
 ### !!! ###
@@ -7,7 +7,7 @@ MAINTAINER Vladimir Goshev <sunx@sunx.name>
 ### !!! ###
 
 # Define some build arguments. #
-# ODS version to install (only 12.5 was tested so far)
+# ODS version to install (only 12.5 and 12.6 were tested so far)
 ARG ODS_VERSION=12.5
 # If we should add ssh to image (for remote development support)
 ARG DO_SSH_IMAGE='YES'

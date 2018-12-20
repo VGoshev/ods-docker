@@ -27,15 +27,15 @@ if [ ! -z "$1" ]; then
   SSH_IMAGE="$1"
 fi
 
-ODS_VERSION=12.5
+ODS_VERSION=12.6
 if [ ! -z "$2" ]; then
   ODS_VERSION="$2"
 fi
 
 #Check, if tar file exists
 ODS_TAR="OracleDeveloperStudio${ODS_VERSION}-linux-x86-bin.tar.bz2"
-if [ ! -f ./$ODS_TAR ]; then
-  echo "You need to download $ODS_TAR file first"
+if [ ! -f $ODS_TAR ]; then
+  echo "You need to download $ODS_TAR file to ./docker directory first"
   echo "You can download it from official Oracle Developer Studio download  web page:"
   echo "  http://www.oracle.com/technetwork/server-storage/developerstudio/downloads/index.html"
   exit 1
@@ -48,7 +48,7 @@ USER_UID=`id -u`
 
 # But if we are doing this work under root user, then don't do all this.
 if [ "x$USER_UID" != "x0" ]; then
-  DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg USER_UID=$USER_UID --build-arg USER_GID=$USER_GID"
+  DOCKER_BUILD_ARGS="$DOCKER_BUILD_ARGS --build-arg USER_UID=$USER_UID --build-arg USER_GID=$USER_GID --build-arg ODS_VERSION=${ODS_VERSION}"
 fi
 # It would be good to get our password, but it is impossible, I think
 
